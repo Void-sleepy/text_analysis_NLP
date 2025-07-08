@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Text Analysis & Writing Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-bg py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold flex items-center">
+                        <i class="fas fa-edit mr-3"></i>
+                        Text Analysis & Writing Assistant
+                    </h1>
+                    <p class="mt-2">AI-powered writing enhancement for academic excellence</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Text Input Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Original Text Section -->
+            <div class="analysis-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-keyboard mr-2"></i>
+                        Your Text
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="clearText" class="btn-secondary">
+                            <i class="fas fa-trash mr-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <textarea 
+                    id="textInput" 
+                    placeholder="Paste your text here."
+                    class="w-full h-64 p-4 resize-none"
+                ></textarea>
+                
+                <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="stat-card">
+                        <div class="stat-number" id="charCount">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="wordCountDetail">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="sentenceCount">0</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="paragraphCount">0</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                </div>
+
+                <!-- Two Action Buttons -->
+                <div class="mt-6 pt-4" style="border-top: 1px solid var(--border-color);">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button id="fixBtn" class="btn-secondary">
+                            <i class="fas fa-spell-check mr-2"></i> Fix Grammar
+                        </button>
+                        <button id="improveBtn" class="btn-primary">
+                            <i class="fas fa-magic mr-2"></i> Improve Style
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Improved Text Section -->
+            <div class="analysis-card" id="improvedTextSection" style="display: none;">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-check-circle mr-2" style="color: var(--accent-green);"></i>
+                        <span id="improvedTextTitle">Improved Text</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="copyImproved" class="btn-secondary">
+                            <i class="fas fa-copy mr-1"></i> Copy
+                        </button>
+                        <button id="replaceOriginal" class="btn-primary">
+                            <i class="fas fa-arrow-left mr-1"></i> Replace
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="improved-text-container">
+                    <div id="improvedText" class="w-full h-64 p-4 bg-soft-gray border rounded-lg overflow-y-auto" style="background-color: var(--improved-bg); border: 1px solid var(--improved-border); white-space: pre-wrap; font-family: inherit; line-height: 1.6;"></div>
+                </div>
+
+                <!-- Improvement Summary -->
+                <div class="mt-4 p-4 rounded-lg" style="background-color: var(--success-bg); border: 1px solid var(--success-border);">
+                    <h4 class="font-semibold text-sm mb-2" style="color: var(--success-text);">
+                        <i class="fas fa-magic mr-1"></i> <span id="improvementType">Improvements</span> Made:
+                    </h4>
+                    <div id="improvementSummary" class="text-sm" style="color: var(--success-text);">
+                        <!-- Summary will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results Row -->
+        <div class="analysis-card">
+            <!-- Tabs -->
+            <div class="flex mb-6" style="border-bottom: 1px solid var(--border-color);">
+                <button class="tab-btn tab-active" data-tab="overview">
+                    <i class="fas fa-chart-line mr-1"></i> Overview
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tab-overview" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Readability Score -->
+                    <div class="analysis-sub-card">
+                        <h3 class="font-semibold mb-3 flex items-center">
+                            <i class="fas fa-tachometer-alt mr-2"></i>
+                            Readability
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="stat-card">
+                                <div class="stat-number" id="fleschScore">-</div>
+                                <div class="stat-label">Reading Ease</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="gradeLevel">-</div>
+                                <div class="stat-label">Grade Level</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="readabilityLevel">-</div>
+                                <div class="stat-label">Difficulty</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sentiment Analysis -->
+                    <div class="analysis-sub-card">
+                        <h3 class="font-semibold mb-3 flex items-center">
+                            <i class="fas fa-heart mr-2"></i>
+                            Tone & Sentiment
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="stat-card">
+                                <div class="stat-label">Overall Tone</div>
+                                <div class="stat-number" id="overallTone">-</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Academic Level</div>
+                                <div class="stat-number" id="academicLevel">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Word Frequency -->
+                    <div class="analysis-sub-card">
+                        <h3 class="font-semibold mb-3 flex items-center">
+                            <i class="fas fa-tags mr-2"></i>
+                            Key Words
+                        </h3>
+                        <div class="word-cloud" id="wordCloud">
+                            <div class="text-muted text-sm">Start typing to see word frequency analysis...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-grammar" class="tab-content hidden">
+                <div id="grammarIssues" class="space-y-3">
+                    <div class="text-center py-8">
+                        <i class="fas fa-spell-check text-4xl mb-3 text-muted"></i>
+                        <p class="text-muted">No grammar issues detected. Start typing to analyze your text.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-style" class="tab-content hidden">
+                <div id="styleIssues" class="space-y-3">
+                    <div class="text-center py-8">
+                        <i class="fas fa-palette text-4xl mb-3 text-muted"></i>
+                        <p class="text-muted">Style analysis will appear here as you type.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 flex items-center justify-center hidden z-50">
+        <div class="analysis-card text-center">
+            <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Improving your text...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
